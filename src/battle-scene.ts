@@ -66,7 +66,7 @@ export const STARTER_FORM_OVERRIDE = 0;
 export const STARTING_LEVEL_OVERRIDE = 0;
 export const STARTING_WAVE_OVERRIDE = 0;
 export const STARTING_BIOME_OVERRIDE = Biome.TOWN;
-export const STARTING_MONEY_OVERRIDE = 0;
+export const STARTING_MONEY_OVERRIDE = 9999999;
 
 export const ABILITY_OVERRIDE = Abilities.NONE;
 export const MOVE_OVERRIDE = Moves.NONE;
