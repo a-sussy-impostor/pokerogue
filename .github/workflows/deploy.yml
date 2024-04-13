@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: "20"
       - name: Install dependencies
+        run: vite install
+      - name: Job.
         run: npm run start:dev
         env:
           NODE_ENV: production
