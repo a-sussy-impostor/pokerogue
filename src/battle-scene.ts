@@ -19,7 +19,8 @@ import { } from "./data/move";
 import { initMoves } from './data/move';
 import { ModifierPoolType, getDefaultModifierTypeForTier, getEnemyModifierTypesForWave } from './modifier/modifier-type';
 import AbilityBar from './ui/ability-bar';
-import { Abilities, BlockItemTheftAbAttr, DoubleBattleChanceAbAttr, IncrementMovePriorityAbAttr, applyAbAttrs, initAbilities } from './data/ability';
+import { BlockItemTheftAbAttr, DoubleBattleChanceAbAttr, IncrementMovePriorityAbAttr, applyAbAttrs, initAbilities } from './data/ability';
+import { Abilities } from "./data/enums/abilities";
 import Battle, { BattleType, FixedBattleConfig, fixedBattles } from './battle';
 import { GameMode, GameModes, gameModes } from './game-mode';
 import FieldSpritePipeline from './pipelines/field-sprite';
@@ -65,7 +66,7 @@ export const STARTER_FORM_OVERRIDE = 0;
 export const STARTING_LEVEL_OVERRIDE = 0;
 export const STARTING_WAVE_OVERRIDE = 0;
 export const STARTING_BIOME_OVERRIDE = Biome.TOWN;
-export const STARTING_MONEY_OVERRIDE = 0;
+export const STARTING_MONEY_OVERRIDE = 10000000;
 
 export const ABILITY_OVERRIDE = Abilities.NONE;
 export const MOVE_OVERRIDE = Moves.NONE;
@@ -1557,6 +1558,7 @@ export default class BattleScene extends SceneBase {
 			const soundName = modifier.type.soundName;
 			this.validateAchvs(ModifierAchv, modifier);
 			const modifiersToRemove: PersistentModifier[] = [];
+			const modifierPromises: Promise<boolean>[] = [];
 			if (modifier instanceof PersistentModifier) {
 				if (modifier instanceof TerastallizeModifier)
 					modifiersToRemove.push(...(this.findModifiers(m => m instanceof TerastallizeModifier && m.pokemonId === modifier.pokemonId)));
@@ -1595,11 +1597,14 @@ export default class BattleScene extends SceneBase {
 						} else if (modifier instanceof FusePokemonModifier)
 							args.push(this.getPokemonById(modifier.fusePokemonId) as PlayerPokemon);
 							
-						if (modifier.shouldApply(args))
-							modifier.apply(args);
+						if (modifier.shouldApply(args)) {
+							const result = modifier.apply(args);
+							if (result instanceof Promise)
+								modifierPromises.push(result);
+						}
 					}
 					
-					return Promise.allSettled(this.party.map(p => p.updateInfo(instant))).then(() => resolve());
+					return Promise.allSettled([this.party.map(p => p.updateInfo(instant)), ...modifierPromises]).then(() => resolve());
 				} else {
 					const args = [ this ];
 					if (modifier.shouldApply(args))
