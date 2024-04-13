@@ -13,7 +13,9 @@ jobs:
         with:
           node-version: "20"
       - name: Install dependencies
-        run: npm create vite@latest my-vue-app -- --template vue
+        run: npm install
+      - name: Lol
+        run: npm i vite
       - name: Job.
         run: npm run start:dev
         env:
